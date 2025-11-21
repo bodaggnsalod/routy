@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+pyyaml
+pytest
+httpx
+numpy
+scikit-learn
+matplotlib

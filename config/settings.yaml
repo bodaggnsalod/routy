@@ -1,0 +1,16 @@
+api:
+  host: "0.0.0.0"
+  port: 8000
+  version: "1.0"
+
+logging:
+  level: "INFO"
+
+data:
+  default_path: "./data/routes.csv"
+
+rl:
+  learning_rate: 0.01
+  discount_factor: 0.99
+  epsilon: 0.1
+  episodes: 100
