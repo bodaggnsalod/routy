@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+.pytest_cache/
+*.pyo
+*.pyd
+.env
+.env.*
+.venv/
+venv/
+venv.bak/
+pip-wheel-metadata/
+.eggs/
+*.egg-info/
+
+# Testing / Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+.tox/
+.nox/
+.mypy_cache/
+
+# SQLite / DB files
+*.sqlite3
+*.db
+*.db-journal
+
+# Node / Frontend
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+frontend/dist/
+dist/
+build/
+.vite/
+
+# Vite / tooling
+.vite/
+.eslintcache
+
+# Editor / OS
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Secrets / credentials / keys
+*.pem
+*.key
+secrets.yml
+.env.local
+
+# Static / generated
+*.zip
+*.tar.gz
+
+# Optional: ignore frontend public assets if you don't want to track large logos
+#frontend/public/@logo.jpg
+
+# Keep this repo clean: ignore local machine-specific files
+*.iml

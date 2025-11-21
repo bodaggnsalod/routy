@@ -37,7 +37,7 @@ Ziel ist es, ein KI-gestütztes System zu entwickeln, das Transport- und Lieferf
 | **Testing**   | Pytest                        |
 | **DevOps**    | Docker, Docker Compose        |
 
-## 🔧 Installation & Setup
+## 🔧 Installation & Setup (Backend)
 
 ### Voraussetzungen
 - Python 3.10+
@@ -62,8 +62,28 @@ source .venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 ```
 
+## 🔧 Installation & Setup (Frontend)
+Ein separates, isoliertes Frontend-Subprojekt wurde unter frontend/ angelegt. Es zeigt das zentrale Logo und darunter den Live-API-Status vom Backend (GET /health).
+
+```bash
+cd /home/tobi/IT-MGMT/routy/frontend
+npm install
+```
+
+### Build & Preview
+```bash
+npm run build
+npm run preview
+```
+### Tests (Frontend)
+```bash
+npm run test
+```
+Vitest + Testing Library sind eingerichtet; Tests liegen in frontend/tests/.
+
+
 ## 🚀 Schnellstart
-Die Schritte von **🔧 Installation & Setup** müssen erfolgreich vorher abgeschlossen werden.
+Die Schritte von **🔧 Installation & Setup** müssen vorher erfolgreich abgeschlossen werden.
 
 ### 1. Backend starten
 ```bash
@@ -72,7 +92,14 @@ uvicorn src.backend.main:app --reload
 
 Server läuft unter: `http://127.0.0.1:8000`
 
-### 2. API testen
+### 2. Frontend starten
+```bash
+npm run dev
+```
+
+Server läuft unter: `http://127.0.0.1:5173`
+
+### 3. API testen
 
 **Health-Check:**
 ```bash
@@ -89,12 +116,12 @@ curl -X POST http://127.0.0.1:8000/api/v1/route/optimize \
   ]'
 ```
 
-### 3. Tests ausführen
+### 4. Tests ausführen
 ```bash
 pytest -v
 ```
 
-### 4. API-Docs öffnen
+### 5. API-Docs öffnen
 - **OpenAPI (Swagger):** http://127.0.0.1:8000/docs
 - **ReDoc:** http://127.0.0.1:8000/redoc
 
@@ -258,19 +285,6 @@ fix: Correct priority sorting bug
 docs: Update API documentation
 test: Add integration tests for route endpoint
 ```
-
-## 📞 Support & Kontakt
-
-Für Fragen oder Probleme:
-- 📧 Email: dev@routy.io
-- 🐛 Issues: GitHub Issues
-- 💬 Discussion: GitHub Discussions
-
-## 📄 Lizenz
-
-MIT License — siehe LICENSE file
-
----
 
 **Version:** 1.0 MVP  
 **Letztes Update:** 2025-11-21  
