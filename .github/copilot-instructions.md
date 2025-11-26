@@ -5,16 +5,16 @@ Routy is an AI-powered tour planning system for logistics companies. This is an 
 
 ## Critical Architecture Decisions
 
-### 1. Dual Structure Issue (IMPORTANT!)
-The project currently has **two conflicting structures**:
-- **Legacy:** `src/` with imports like `from src.backend.main import app`
-- **Target:** `backend/app/` with imports like `from app.main import app`
+### 1. Project Structure (MIGRATED ✅)
+The project uses a **clean monorepo structure**:
+- **Backend:** `backend/app/` with imports like `from app.main import app`
+- **Frontend:** `frontend/` (React + Vite)
+- **Legacy `src/` folder:** May still exist but should NOT be used
 
 ⚠️ **When editing code:**
-- Backend files in `backend/app/` should use `from app.*` imports
-- Legacy `src/` files use `from src.*` imports
-- `backend/app/main.py` exists but still imports from `src/` (inconsistent!)
-- Check which structure you're in before adding imports
+- Backend files MUST use `from app.*` imports (e.g., `from app.models.schemas import Order`)
+- If you see `from src.*` imports, these are outdated and should be updated
+- All new code goes into `backend/app/` structure
 
 ### 2. Monorepo Layout
 ```
@@ -56,10 +56,10 @@ docker-compose up    # Backend:8000, Frontend:5173
 
 ### Backend Patterns
 1. **API Versioning:** All routes under `/api/v1/` (see `backend/app/api/v1/endpoints.py`)
-2. **Config Loading:** Uses `src.utils.config_loader.load_config()` to read `config/settings.yaml` (not Pydantic Settings!)
-3. **Models:** Pydantic models in `backend/app/models/schemas.py` (Order, Vehicle, Stop)
+2. **Config:** Uses Pydantic Settings in `backend/app/core/config.py` (NOT YAML!)
+3. **Models:** Pydantic models in `backend/app/models/schemas.py` (Order, Vehicle, RouteResponse, StatsResponse)
 4. **RL Agent:** Stub implementation in `backend/app/services/rl_agent.py` - uses naive priority sorting, not real ML
-5. **CORS:** Wide open (`allow_origins=["*"]`) for MVP - tighten in production
+5. **CORS:** Configurable via `settings.ALLOWED_ORIGINS` (default: localhost:5173, localhost:3000)
 
 ### Frontend Patterns
 1. **Proxy Setup:** Vite proxies `/health` and `/api` to `localhost:8000` (see `vite.config.js`)
@@ -74,18 +74,19 @@ docker-compose up    # Backend:8000, Frontend:5173
 
 ## Common Pitfalls
 
-1. **Import Confusion:** Mixing `from src.*` and `from app.*` breaks tests/runtime
-2. **Missing Config:** Backend expects `config/settings.yaml` - will crash if missing
+1. **Wrong Imports:** Using `from src.*` instead of `from app.*` breaks everything
+2. **Missing pydantic-settings:** Backend requires `pydantic-settings` package for Settings class
 3. **Port Conflicts:** Backend on 8000, frontend on 5173 - check if already in use
 4. **Proxy Failures:** Frontend won't fetch backend if backend not running on 8000
-5. **Logo 404:** Frontend Landing component hardcodes `/@logo.jpg` - file must exist in `public/`
+5. **Logo 404:** Frontend Landing component expects `/@logo.jpg` - file must exist in `frontend/public/`
+6. **PYTHONPATH:** When running backend, ensure you're in `backend/` directory or set PYTHONPATH correctly
 
 ## External Dependencies & Integration
 
 ### Backend
 - **FastAPI:** ASGI framework, auto-generates OpenAPI docs at `/docs`
-- **Pydantic:** For request/response validation (NOT for settings!)
-- **YAML Config:** Runtime config from `config/settings.yaml`
+- **Pydantic:** For request/response validation AND settings (via pydantic-settings)
+- **Settings:** Environment-based config via `.env` file (see `backend/.env.example`)
 - **RLAgent:** Currently stub - Phase 2 will add TensorFlow/PyTorch
 
 ### Frontend
@@ -118,8 +119,9 @@ Frontend (Landing.jsx)
 
 ### Service/Business Logic
 1. Add to `backend/app/services/` (e.g., `new_service.py`)
-2. Import with `from app.services.new_service import ...` (or `from src.services...` if legacy)
+2. Import with `from app.services.new_service import ...`
 3. Test in `backend/tests/test_services.py`
+4. Use type hints and docstrings (Google style)
 
 ## Phase 2 Plans (Context for Future Work)
 - Real RL training (currently stubbed)

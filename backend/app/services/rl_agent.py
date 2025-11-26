@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from src.models import Order
+from app.models.schemas import Order
 
 class RLAgent:
     """

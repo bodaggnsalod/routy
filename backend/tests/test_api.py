@@ -1,11 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
-from src.backend.main import app
-from src.models import Order
-from src.rl_engine.agent import RLAgent
-from src.rl_engine.environment import TourEnvironment
-from src.simulation_env.simulation import Simulation
-from src.data_pipeline.loader import DataLoader
+from app.main import app
+from app.models.schemas import Order
+from app.services.rl_agent import RLAgent
+from app.services.environment import TourEnvironment
+from app.services.simulation import Simulation
+from app.services.data_loader import DataLoader
 
 client = TestClient(app)
 

@@ -1,76 +1,69 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List
-from src.models import Order
-from src.rl_engine.agent import RLAgent
-from src.api import endpoints
-from src.utils.config_loader import load_config
+from app.core.config import settings
+from app.api.v1 import endpoints
 
-# Load configuration
-config = load_config()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup/shutdown events"""
+    # Startup
+    print(f"🚀 {settings.PROJECT_NAME} v{settings.VERSION} starting...")
+    print(f"📍 API Prefix: {settings.API_V1_PREFIX}")
+    print(f"🌐 CORS Origins: {settings.ALLOWED_ORIGINS}")
+    
+    yield
+    
+    # Shutdown
+    print("🛑 Shutting down...")
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Routy API",
-    description="KI-basierte dynamische Tourenplanung",
-    version=config.get("api", {}).get("version", "1.0")
+    title=settings.PROJECT_NAME,
+    description="KI-basierte dynamische Tourenplanung für Logistikunternehmen",
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Initialize RL Agent
-agent = RLAgent()
-
-# Include routers
-app.include_router(endpoints.router)
-
-@app.get("/health", tags=["Monitoring"])
-def read_health():
-    """Health-Check Endpunkt"""
-    return {
-        "status": "ok",
-        "service": "Routy API",
-        "version": config.get("api", {}).get("version", "1.0")
-    }
-
-@app.post("/api/v1/route/optimize", tags=["Routing"])
-def optimize_route(orders: List[Order]):
+# Root health check
+@app.get("/health", tags=["monitoring"])
+def health_check():
     """
-    Optimiert eine Liste von Aufträgen zu einer effizienten Route.
-    
-    Args:
-        orders: Liste von Order-Objekten
+    Health-Check Endpunkt.
     
     Returns:
-        Optimierte Route mit Stopps und geschätzter Dauer
+        Status, Service-Name und Version
     """
-    stops = agent.predict(orders)
-    estimated_duration_minutes = max(10, len(stops) * 10)
-    
     return {
-        "route_id": "mvp_route_001",
-        "stops": stops,
-        "estimated_duration_minutes": estimated_duration_minutes
+        "status": "ok",
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION
     }
 
-@app.on_event("startup")
-async def startup_event():
-    """Startup-Hooks"""
-    print("🚀 Routy API is starting...")
-    print(f"📋 Config loaded: {config}")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Shutdown-Hooks"""
-    print("🛑 Routy API is shutting down...")
+# Include API routers
+app.include_router(
+    endpoints.router,
+    prefix=settings.API_V1_PREFIX,
+    tags=["api-v1"]
+)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "app.main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.DEBUG
+    )

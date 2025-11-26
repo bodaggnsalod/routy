@@ -1,8 +1,8 @@
 import csv
 import json
-from typing import List, Union
+from typing import List
 from pathlib import Path
-from src.models import Order, Vehicle
+from app.models.schemas import Order, Vehicle
 
 class DataLoader:
     """
