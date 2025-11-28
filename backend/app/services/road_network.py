@@ -126,6 +126,40 @@ class RoadNetwork:
         if self.graph.has_edge(start, end):
             return self.graph[start][end]['weight']
         return None
+    
+    def get_all_edges(self) -> List[Dict[str, any]]:
+        """
+        Gibt alle Kanten im Netzwerk zurück.
+        
+        Returns:
+            Liste von Dicts mit start, end, weight, base_weight
+        """
+        edges = []
+        for u, v, data in self.graph.edges(data=True):
+            edges.append({
+                'start': u,
+                'end': v,
+                'weight': data.get('weight', 0),
+                'base_weight': data.get('base_weight', 0),
+                'delay_factor': (data.get('weight', 0) / data.get('base_weight', 1)) - 1 if data.get('base_weight', 1) > 0 else 0
+            })
+        return edges
+    
+    def get_congested_routes(self, threshold: float = 0.5) -> List[Dict[str, any]]:
+        """
+        Gibt alle Routen zurück, deren Delay-Faktor über dem Threshold liegt.
+        
+        Args:
+            threshold: Minimaler Delay-Faktor (default: 0.5)
+        
+        Returns:
+            Liste von Routen mit hohem Traffic
+        """
+        congested = []
+        for edge in self.get_all_edges():
+            if edge['delay_factor'] >= threshold:
+                congested.append(edge)
+        return congested
 
 
 # Global instance

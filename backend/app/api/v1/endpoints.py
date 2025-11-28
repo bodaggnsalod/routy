@@ -175,3 +175,51 @@ def get_shortest_path(start: str, end: str):
         "distance_minutes": distance,
         "stops_count": len(path)
     }
+
+
+@router.get("/network/congested", tags=["network"])
+def get_congested_routes(threshold: float = 0.5):
+    """
+    Gibt alle Routen mit hohem Traffic zurück.
+    
+    - **threshold**: Minimaler Delay-Faktor (default: 0.5)
+    """
+    congested = road_network.get_congested_routes(threshold)
+    
+    return {
+        "threshold": threshold,
+        "congested_routes": congested,
+        "count": len(congested)
+    }
+
+
+@router.post("/network/simulate-traffic", tags=["network"])
+def simulate_traffic():
+    """
+    Simuliert Traffic-Delays auf zufälligen Routen (für Demo-Zwecke).
+    """
+    import random
+    
+    # Hole alle Routen
+    all_edges = road_network.get_all_edges()
+    
+    # Wähle 2-3 zufällige Routen und setze hohe Delays
+    num_congested = min(3, len(all_edges))
+    congested_routes = random.sample(all_edges, num_congested)
+    
+    updates = []
+    for route in congested_routes:
+        # Setze Delay zwischen 0.5 und 1.0
+        delay = random.uniform(0.5, 1.0)
+        road_network.update_traffic(route['start'], route['end'], delay)
+        updates.append({
+            'route': f"{route['start']} ↔ {route['end']}",
+            'delay_factor': delay
+        })
+    
+    return {
+        "message": "Traffic simulated",
+        "updated_routes": updates,
+        "count": len(updates)
+    }
+

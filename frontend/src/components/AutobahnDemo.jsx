@@ -15,7 +15,8 @@ export default function AutobahnDemo() {
         traffic: null,
         network: null,
         agent: null,
-        integration: null
+        integration: null,
+        congested: null
       };
 
       // 1. Traffic API Test
@@ -28,11 +29,11 @@ export default function AutobahnDemo() {
       const locationsRes = await fetch('/api/v1/network/locations');
       if (locationsRes.ok) {
         const locData = await locationsRes.json();
-        
+
         if (locData.locations && locData.locations.length >= 2) {
           const start = locData.locations[0];
           const end = locData.locations[1];
-          
+
           const pathRes = await fetch(`/api/v1/network/path?start=${start}&end=${end}`);
           if (pathRes.ok) {
             demoResults.network = {
@@ -54,6 +55,9 @@ export default function AutobahnDemo() {
       }
 
       // 4. Full Integration Test
+      // Zuerst Traffic simulieren für bessere Demo
+      await fetch('/api/v1/network/simulate-traffic', { method: 'POST' });
+
       const routeRes = await fetch('/api/v1/route/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,6 +72,12 @@ export default function AutobahnDemo() {
         demoResults.integration = await routeRes.json();
       }
 
+      // 5. Congested Routes Test
+      const congestedRes = await fetch('/api/v1/network/congested?threshold=0.5');
+      if (congestedRes.ok) {
+        demoResults.congested = await congestedRes.json();
+      }
+
       setResults(demoResults);
     } catch (err) {
       setError(err.message);
@@ -77,23 +87,32 @@ export default function AutobahnDemo() {
   };
 
   return (
+
     <div className="w-full max-w-4xl mx-auto p-6 space-y-4">
+      {results && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-green-800 font-medium">✅ Demo erfolgreich abgeschlossen!</p>
+          <p className="text-green-600 text-sm mt-1">
+            Alle Komponenten funktionieren korrekt.
+          </p>
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           🚀 Autobahn API + DQN Demo
         </h2>
         <p className="text-gray-600 mb-6">
-          Testet die Integration von Live-Verkehrsdaten, Straßennetzwerk und RL-Agent
+          Testet die Integration von Live-Verkehrsdaten, Straßennetzwerk und RL-Agent.
+          Zeigt auch überlastete Routen mit Delay-Faktor &gt; 0.5 an.
         </p>
 
         <button
           onClick={runDemo}
           disabled={running}
-          className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${
-            running
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
+          className={`w-full py-3 px-6 rounded-lg font-medium text-white transition-colors ${running
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-600 hover:bg-blue-700'
+            }`}
         >
           {running ? '⏳ Demo läuft...' : '▶️ Demo starten'}
         </button>
@@ -191,12 +210,58 @@ export default function AutobahnDemo() {
             </div>
           )}
 
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-800 font-medium">✅ Demo erfolgreich abgeschlossen!</p>
-            <p className="text-green-600 text-sm mt-1">
-              Alle Komponenten funktionieren korrekt.
-            </p>
-          </div>
+          {/* Congested Routes */}
+          {results.congested && (
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="font-bold text-lg mb-2">
+                5️⃣ Routen mit hohem Traffic
+                {results.congested.count > 0 && (
+                  <span className="ml-2 text-sm bg-red-100 text-red-700 px-2 py-1 rounded">
+                    {results.congested.count} überlastet
+                  </span>
+                )}
+              </h3>
+              <div className="bg-gray-50 p-3 rounded text-sm">
+                <div className="mb-2 text-gray-600">
+                  Zeigt alle Routen mit Delay-Faktor ≥ {results.congested.threshold}
+                </div>
+                {results.congested.count > 0 ? (
+                  <div className="mt-3 space-y-2">
+                    {results.congested.congested_routes.map((route, idx) => (
+                      <div key={idx} className="bg-red-50 border border-red-200 rounded p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-mono font-medium text-sm">
+                              🚗 {route.start} ↔ {route.end}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              Normal: {route.base_weight} min →
+                              <span className="text-red-600 font-medium"> Mit Traffic: {route.weight.toFixed(0)} min</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs bg-red-600 text-white px-2 py-1 rounded font-bold">
+                              +{(route.delay_factor * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-3 bg-green-50 border border-green-200 rounded p-3 text-center">
+                    <div className="text-2xl mb-1">✅</div>
+                    <div className="text-sm text-green-700 font-medium">
+                      Keine überlasteten Routen
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">
+                      Alle Routen haben einen Delay-Faktor &lt; {results.congested.threshold}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
