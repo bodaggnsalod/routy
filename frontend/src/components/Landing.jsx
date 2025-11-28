@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import GermanyMap from './GermanyMap';
 
 export default function Landing() {
   const [status, setStatus] = useState({ ok: false, text: 'loading' });
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -28,6 +30,22 @@ export default function Landing() {
     };
   }, []);
 
+  if (showMap) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="p-4">
+          <button
+            onClick={() => setShowMap(false)}
+            className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            ← Zurück zur Startseite
+          </button>
+          <GermanyMap />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
@@ -38,6 +56,15 @@ export default function Landing() {
             aria-hidden="true"
           />
           <span className="text-sm text-gray-700">API: {status.text}</span>
+        </div>
+        
+        <div className="mt-8">
+          <button
+            onClick={() => setShowMap(true)}
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+          >
+            🗺️ Karte starten
+          </button>
         </div>
       </div>
     </div>
