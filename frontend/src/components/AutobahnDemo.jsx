@@ -16,7 +16,8 @@ export default function AutobahnDemo() {
         network: null,
         agent: null,
         integration: null,
-        congested: null
+        congested: null,
+        travelTime: null
       };
 
       // 1. Traffic API Test
@@ -78,6 +79,12 @@ export default function AutobahnDemo() {
         demoResults.congested = await congestedRes.json();
       }
 
+      // 6. Travel Time Prediction Test
+      const travelTimeRes = await fetch('/api/v1/travel-time/optimal-departure?start=Berlin&end=München&hours_window=12');
+      if (travelTimeRes.ok) {
+        demoResults.travelTime = await travelTimeRes.json();
+      }
+
       setResults(demoResults);
     } catch (err) {
       setError(err.message);
@@ -102,8 +109,8 @@ export default function AutobahnDemo() {
           🚀 Autobahn API + DQN Demo
         </h2>
         <p className="text-gray-600 mb-6">
-          Testet die Integration von Live-Verkehrsdaten, Straßennetzwerk und RL-Agent.
-          Zeigt auch überlastete Routen mit Delay-Faktor &gt; 0.5 an.
+          Testet die Integration von Live-Verkehrsdaten, Straßennetzwerk, RL-Agent und Travel-Time Prediction.
+          Zeigt auch überlastete Routen und optimale Startzeitpunkte an.
         </p>
 
         <button
@@ -259,6 +266,54 @@ export default function AutobahnDemo() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Travel Time Prediction */}
+          {results.travelTime && results.travelTime.recommendation && (
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="font-bold text-lg mb-2">
+                6️⃣ Travel Time Prediction 🕐
+              </h3>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded">
+                <div className="mb-3">
+                  <div className="text-xs text-gray-600 mb-1">Optimaler Startzeitpunkt für Berlin → München</div>
+                  <div className="font-mono text-lg font-bold text-blue-700">
+                    {new Date(results.travelTime.recommendation.departure_time).toLocaleString('de-DE', {
+                      weekday: 'short',
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-white rounded p-2">
+                    <div className="text-xs text-gray-500">Dauer</div>
+                    <div className="font-bold text-blue-600">
+                      {results.travelTime.recommendation.predicted_time_minutes} min
+                    </div>
+                  </div>
+                  <div className="bg-white rounded p-2">
+                    <div className="text-xs text-gray-500">Traffic</div>
+                    <div className="text-xs font-medium text-gray-700">
+                      {results.travelTime.recommendation.traffic_level}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded p-2">
+                    <div className="text-xs text-gray-500">Optionen</div>
+                    <div className="font-bold text-gray-600">
+                      {results.travelTime.total_options_analyzed}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-xs text-gray-600 text-center">
+                  Basiert auf Verkehrsmustern und Live-Daten
+                </div>
               </div>
             </div>
           )}

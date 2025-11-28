@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import AutobahnDemo from './AutobahnDemo';
+import TravelTimePrediction from './TravelTimePrediction';
 
 export default function Landing() {
   const [status, setStatus] = useState({ ok: false, text: 'loading' });
   const [showDemo, setShowDemo] = useState(false);
+  const [showTravelTime, setShowTravelTime] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -46,6 +48,22 @@ export default function Landing() {
     );
   }
 
+  if (showTravelTime) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <button
+            onClick={() => setShowTravelTime(false)}
+            className="mb-4 text-blue-600 hover:text-blue-800 font-medium"
+          >
+            ← Zurück
+          </button>
+          <TravelTimePrediction />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
@@ -59,12 +77,19 @@ export default function Landing() {
         </div>
         
         {status.ok && (
-          <div className="mt-8">
+          <div className="mt-8 space-y-3">
             <button
               onClick={() => setShowDemo(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors"
+              className="w-64 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors"
             >
-              🚀 Autobahn API Demo starten
+              🚀 Autobahn API Demo
+            </button>
+            <br />
+            <button
+              onClick={() => setShowTravelTime(true)}
+              className="w-64 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors"
+            >
+              🕐 Travel Time Prediction
             </button>
           </div>
         )}

@@ -1,6 +1,17 @@
-# Routy: KI-Tourenplanung MVP
+# Routy: KI-Tourenplanung
 
 Ein KI-gestütztes System zur dynamischen Tourenplanung für Logistikunternehmen.
+
+## POC: Use-case
+Ein Disponent im Logistikunternehmen soll den optimalen Startzeitpunkt für eine zu planende Route durch die Anwendung vorgeschlagen bekommen.
+Der Vorschlag soll durch historische Verkehrsdaten (Baustellen, Stau, !Unfäll, Verkehrsdichte) der zu fahrenden Routen erstellt werden.
+
+Travel-Time Prediction:
+-   Time-Series Forecasting (Vorhersage künftiger Verkehrsbedingungen)
+-   Predictive Routing / Travel Time Prediction
+-   Optimization/Recommendation (Startzeitpunkt optimieren)
+
+Ziel: Vorhersage der zu erwartenden Fahrzeit/Verkehrslage für jeden Zeitpunkt in der Zukunft.
 
 ## 📁 Projektstruktur
 
