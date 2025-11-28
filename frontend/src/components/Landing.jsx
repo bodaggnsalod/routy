@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import AutobahnDemo from './AutobahnDemo';
 import TravelTimePrediction from './TravelTimePrediction';
 
 export default function Landing() {
   const [status, setStatus] = useState({ ok: false, text: 'loading' });
-  const [showDemo, setShowDemo] = useState(false);
   const [showTravelTime, setShowTravelTime] = useState(false);
 
   useEffect(() => {
@@ -32,36 +30,8 @@ export default function Landing() {
     };
   }, []);
 
-  if (showDemo) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <button
-            onClick={() => setShowDemo(false)}
-            className="mb-4 text-blue-600 hover:text-blue-800 font-medium"
-          >
-            ← Zurück
-          </button>
-          <AutobahnDemo />
-        </div>
-      </div>
-    );
-  }
-
   if (showTravelTime) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <button
-            onClick={() => setShowTravelTime(false)}
-            className="mb-4 text-blue-600 hover:text-blue-800 font-medium"
-          >
-            ← Zurück
-          </button>
-          <TravelTimePrediction />
-        </div>
-      </div>
-    );
+    return <TravelTimePrediction />;
   }
 
   return (
@@ -75,24 +45,14 @@ export default function Landing() {
           />
           <span className="text-sm text-gray-700">API: {status.text}</span>
         </div>
-        
-        {status.ok && (
-          <div className="mt-8 space-y-3">
-            <button
-              onClick={() => setShowDemo(true)}
-              className="w-64 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors"
-            >
-              🚀 Autobahn API Demo
-            </button>
-            <br />
-            <button
-              onClick={() => setShowTravelTime(true)}
-              className="w-64 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors"
-            >
-              🕐 Travel Time Prediction
-            </button>
-          </div>
-        )}
+        <div className="mt-8">
+          <button
+            onClick={() => setShowTravelTime(true)}
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200"
+          >
+            Travel Time Prediction
+          </button>
+        </div>
       </div>
     </div>
   );

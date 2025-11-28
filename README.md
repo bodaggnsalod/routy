@@ -2,16 +2,17 @@
 
 Ein KI-gestütztes System zur dynamischen Tourenplanung für Logistikunternehmen.
 
-## POC: Use-case
-Ein Disponent im Logistikunternehmen soll den optimalen Startzeitpunkt für eine zu planende Route durch die Anwendung vorgeschlagen bekommen.
-Der Vorschlag soll durch historische Verkehrsdaten (Baustellen, Stau, !Unfäll, Verkehrsdichte) der zu fahrenden Routen erstellt werden.
+## 🔧 Use-case
+Ein Disponent im Logistikunternehmen soll den optimalen Startzeitpunkt für eine zu planende Route durch die Anwendung vorgeschlagen bekommen. Der Vorschlag soll durch historische Verkehrsdaten (Baustellen, Stau, !Unfäll, Verkehrsdichte) der zu fahrenden Routen erstellt werden.
 
-Travel-Time Prediction:
+Ziel: Vorhersage der zu erwartenden Fahrzeit/Verkehrslage für jeden Zeitpunkt in der Zukunft.
+
+Lösung: Travel-Time Prediction:
 -   Time-Series Forecasting (Vorhersage künftiger Verkehrsbedingungen)
 -   Predictive Routing / Travel Time Prediction
 -   Optimization/Recommendation (Startzeitpunkt optimieren)
 
-Ziel: Vorhersage der zu erwartenden Fahrzeit/Verkehrslage für jeden Zeitpunkt in der Zukunft.
+
 
 ## 📁 Projektstruktur
 
@@ -74,11 +75,19 @@ npm run test
 
 ## 📊 API Endpunkte
 
+### Core Features
 - `GET /health` - Health Check
 - `POST /api/v1/route/optimize` - Route optimieren
 - `GET /api/v1/stats` - Statistiken
 
-Vollständige Docs: http://localhost:8000/docs
+### Travel Time Prediction (Haupt-Use-Case)
+- `GET /api/v1/travel-time/predict` - Vorhersage Reisezeit für bestimmten Zeitpunkt
+- `GET /api/v1/travel-time/optimal-departure` - Findet optimalen Startzeitpunkt
+- `GET /api/v1/travel-time/forecast` - Stündliche Verkehrsprognose
+
+Vollständige API-Dokumentation: http://localhost:8000/docs
+
+Detaillierte Feature-Docs: [docs/TRAVEL_TIME_PREDICTION.md](docs/TRAVEL_TIME_PREDICTION.md)
 
 ## 🔧 Konfiguration
 
