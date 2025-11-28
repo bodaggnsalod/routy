@@ -102,3 +102,14 @@ class TourEnvironment:
         Weise einen Auftrag einem Fahrzeug zu.
         """
         self.assigned_orders[order_id] = vehicle_id
+    
+    def get_possible_actions(self) -> List[int]:
+        """
+        Gibt alle möglichen Aktionen im aktuellen Zustand zurück.
+        
+        Returns:
+            Liste von Action-IDs (0 bis num_vehicles-1)
+        """
+        if not self.vehicles:
+            return [0]  # Default action
+        return list(range(len(self.vehicles)))
