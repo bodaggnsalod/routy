@@ -1,7 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from typing import List
+from typing import List, Dict, Any
 from app.models.schemas import Order, RouteResponse, StatsResponse
 from app.services.rl_agent import RLAgent
+from app.services.traffic_api import traffic_client
+from app.services.road_network import road_network
+from app.services.environment import TourEnvironment
 
 router = APIRouter()
 
@@ -57,4 +60,118 @@ def upload_data(file_name: str):
     return {
         "message": f"Data file '{file_name}' uploaded successfully",
         "status": "processing"
+    }
+
+
+@router.get("/traffic/live", tags=["traffic"])
+def get_live_traffic():
+    """
+    Holt aktuelle Live-Verkehrsinformationen von der Autobahn API.
+    
+    Returns:
+        Dict mit Traffic-Status und Delay-Faktor
+    """
+    try:
+        delay_factor = traffic_client.get_live_traffic_delay()
+        
+        return {
+            "delay_factor": delay_factor,
+            "status": traffic_client._get_status_label(delay_factor),
+            "timestamp": "now",
+            "source": "autobahn-api"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Traffic API unavailable: {str(e)}")
+
+
+@router.get("/traffic/route", tags=["traffic"])
+def get_traffic_for_route(start: str, end: str):
+    """
+    Holt Verkehrsinformationen für eine spezifische Route.
+    
+    - **start**: Startort
+    - **end**: Zielort
+    """
+    try:
+        traffic_info = traffic_client.get_traffic_info_for_route(start, end)
+        return traffic_info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get traffic info: {str(e)}")
+
+
+@router.post("/agent/train", tags=["ml"])
+def train_agent(episodes: int = 10, learning_rate: float = 0.01):
+    """
+    Trainiert den RL-Agent mit gegebenen Parametern.
+    
+    - **episodes**: Anzahl Trainings-Episoden
+    - **learning_rate**: Lernrate für DQN
+    """
+    try:
+        # Erstelle Demo-Environment für Training
+        demo_orders = [
+            Order(order_id=i, start_location="Berlin", end_location="München", priority=1)
+            for i in range(5)
+        ]
+        env = TourEnvironment(orders=demo_orders)
+        env.add_vehicle("truck_1")
+        
+        stats = agent.train(environment=env, episodes=episodes, learning_rate=learning_rate)
+        
+        return {
+            "status": "success",
+            "training_stats": stats,
+            "model_ready": agent.trained
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(e)}")
+
+
+@router.get("/agent/history", tags=["ml"])
+def get_training_history():
+    """
+    Gibt die Trainings-Historie des RL-Agents zurück.
+    """
+    return {
+        "history": agent.get_training_history(),
+        "total_trainings": len(agent.get_training_history())
+    }
+
+
+@router.get("/network/locations", tags=["network"])
+def get_network_locations():
+    """
+    Gibt alle verfügbaren Standorte im Straßennetzwerk zurück.
+    """
+    return {
+        "locations": road_network.get_all_locations(),
+        "total": len(road_network.get_all_locations())
+    }
+
+
+@router.get("/network/path", tags=["network"])
+def get_shortest_path(start: str, end: str):
+    """
+    Berechnet den kürzesten Pfad zwischen zwei Standorten.
+    
+    - **start**: Startort
+    - **end**: Zielort
+    """
+    if not road_network.has_location(start):
+        raise HTTPException(status_code=404, detail=f"Start location '{start}' not found")
+    if not road_network.has_location(end):
+        raise HTTPException(status_code=404, detail=f"End location '{end}' not found")
+    
+    path = road_network.shortest_path(start, end)
+    distance = road_network.shortest_path_length(start, end)
+    
+    if path is None:
+        raise HTTPException(status_code=404, detail="No path found between locations")
+    
+    return {
+        "start": start,
+        "end": end,
+        "path": path,
+        "distance_minutes": distance,
+        "stops_count": len(path)
     }

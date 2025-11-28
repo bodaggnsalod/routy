@@ -31,5 +31,14 @@ class Settings(BaseSettings):
     RL_LEARNING_RATE: float = 0.01
     RL_EPISODES: int = 100
     RL_EPSILON: float = 0.1
+    RL_GAMMA: float = 0.9
+    
+    # Autobahn API
+    AUTOBAHN_API_URL: str = "https://verkehr.autobahn.de/o/autobahn/"
+    AUTOBAHN_TIMEOUT: int = 5
+    
+    # Graph Network Config
+    GRAPH_HIDDEN_DIM: int = 32
+    GRAPH_MAX_STEPS: int = 20
 
 settings = Settings()
