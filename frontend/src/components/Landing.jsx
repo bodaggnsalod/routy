@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import AutobahnDemo from './AutobahnDemo';
 
 export default function Landing() {
   const [status, setStatus] = useState({ ok: false, text: 'loading' });
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -28,6 +30,22 @@ export default function Landing() {
     };
   }, []);
 
+  if (showDemo) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <button
+            onClick={() => setShowDemo(false)}
+            className="mb-4 text-blue-600 hover:text-blue-800 font-medium"
+          >
+            ← Zurück
+          </button>
+          <AutobahnDemo />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
@@ -39,6 +57,17 @@ export default function Landing() {
           />
           <span className="text-sm text-gray-700">API: {status.text}</span>
         </div>
+        
+        {status.ok && (
+          <div className="mt-8">
+            <button
+              onClick={() => setShowDemo(true)}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors"
+            >
+              🚀 Autobahn API Demo starten
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
